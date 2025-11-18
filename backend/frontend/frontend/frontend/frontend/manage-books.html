@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Books</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: darkgreen; }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            width: 250px;
+        }
+        button {
+            padding: 10px;
+            background: darkgreen;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #bbbbbb;
+            padding: 10px;
+        }
+        th {
+            background: #e0f1e0;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Manage Books</h2>
+
+<h3>Add New Book</h3>
+
+<input id="title" type="text" placeholder="Book Title">
+<input id="author" type="text" placeholder="Author">
+<input id="isbn" type="text" placeholder="ISBN">
+<input id="category" type="text" placeholder="Category">
+<input id="copies" type="number" placeholder="Number of Copies">
+
+<button onclick="addBook()">Add Book</button>
+
+<p id="message" style="color:green;"></p>
+
+<hr>
+
+<h3>Available Books</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>ISBN</th>
+            <th>Category</th>
+            <th>Copies</th>
+        </tr>
+    </thead>
+    <tbody id="bookList"></tbody>
+</table>
+
+<script>
+    async function addBook() {
+        const book = {
+            id: crypto.randomUUID(),
+            title: document.getElementById("title").value,
+            author: document.getElementById("author").value,
+            isbn: document.getElementById("isbn").value,
+            category: document.getElementById("category").value,
+            copies: document.getElementById("copies").value
+        };
+
+        await fetch("https://YOUR_BACKEND_URL/books/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(book)
+        });
+
+        document.getElementById("message").innerText = "Book added!";
+        loadBooks();
+    }
+
+    async function loadBooks() {
+        const res = await fetch("https://YOUR_BACKEND_URL/books");
+        const books = await res.json();
+
+        let html = "";
+        books.forEach(b => {
+            html += `
+                <tr>
+                    <td>${b.title}</td>
+                    <td>${b.author}</td>
+                    <td>${b.isbn}</td>
+                    <td>${b.category}</td>
+                    <td>${b.copies}</td>
+                </tr>
+            `;
+        });
+        document.getElementById("bookList").innerHTML = html;
+    }
+
+    loadBooks();
+</script>
+
+</body>
+</html>
