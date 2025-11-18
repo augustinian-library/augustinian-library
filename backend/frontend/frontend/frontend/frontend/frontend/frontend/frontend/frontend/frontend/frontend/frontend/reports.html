@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Reports</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: #512da8; }
+
+        .card {
+            background: #f3e5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #512da8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        input {
+            padding: 10px;
+            width: 250px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>📄 Library Reports & Downloads</h2>
+
+<div class="card">
+    <h3>Students Report</h3>
+    <button onclick="downloadCSV('students')">Download Students CSV</button>
+</div>
+
+<div class="card">
+    <h3>Books Report</h3>
+    <button onclick="downloadCSV('books')">Download Books CSV</button>
+</div>
+
+<div class="card">
+    <h3>Active Loans</h3>
+    <button onclick="downloadCSV('active-loans')">Download Active Loans CSV</button>
+</div>
+
+<div class="card">
+    <h3>Returned Books</h3>
+    <button onclick="downloadCSV('returned')">Download Returned Books CSV</button>
+</div>
+
+<div class="card">
+    <h3>Overdue Books</h3>
+    <button onclick="downloadCSV('overdue')">Download Overdue Books CSV</button>
+</div>
+
+<div class="card">
+    <h3>All Fines</h3>
+    <button onclick="downloadCSV('fines')">Download Fines CSV</button>
+</div>
+
+<div class="card">
+    <h3>Reservation List</h3>
+    <button onclick="downloadCSV('reservations')">Download Reservations CSV</button>
+</div>
+
+<div class="card">
+    <h3>Student History (Custom Range)</h3>
+    Student ID:
+    <input id="studentId" placeholder="Enter student ID"><br><br>
+    From: <input id="from1" type="date">
+    To: <input id="to1" type="date"><br><br>
+    <button onclick="downloadStudentHistory()">Download History CSV</button>
+</div>
+
+<div class="card">
+    <h3>Check-in / Check-out Logs (Custom Range)</h3>
+    From: <input id="from2" type="date">
+    To: <input id="to2" type="date"><br><br>
+    <button onclick="downloadLogs()">Download Logs CSV</button>
+</div>
+
+<script>
+function downloadCSV(type) {
+    window.location.href = `https://YOUR_BACKEND_URL/reports/${type}`;
+}
+
+function downloadStudentHistory() {
+    let id = document.getElementById("studentId").value;
+    let from = document.getElementById("from1").value;
+    let to = document.getElementById("to1").value;
+
+    if (!id || !from || !to) {
+        alert("Please fill all fields.");
+        return;
+    }
+
+    window.location.href =
+        `https://YOUR_BACKEND_URL/reports/student-history?id=${id}&from=${from}&to=${to}`;
+}
+
+function downloadLogs() {
+    let from = document.getElementById("from2").value;
+    let to = document.getElementById("to2").value;
+
+    if (!from || !to) {
+        alert("Please fill both dates.");
+        return;
+    }
+
+    window.location.href =
+        `https://YOUR_BACKEND_URL/reports/logs?from=${from}&to=${to}`;
+}
+</script>
+
+</body>
+</html>
