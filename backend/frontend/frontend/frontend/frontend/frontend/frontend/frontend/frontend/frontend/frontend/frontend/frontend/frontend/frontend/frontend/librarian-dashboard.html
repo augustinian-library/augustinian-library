@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Librarian Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #fff6e5;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ff9800;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        h2 { margin: 0; }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 8px #aaa;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 6px;
+            border: 1px solid #aaa;
+        }
+
+        button {
+            padding: 10px 18px;
+            margin-top: 12px;
+            background: #e65100;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .danger {
+            background: red;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        table, th, td {
+            border: 1px solid #bbb;
+        }
+
+        th, td {
+            padding: 12px;
+        }
+
+        th {
+            background: #ffe0b2;
+        }
+
+        video {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>Librarian Dashboard</h2>
+    <button class="danger" onclick="logout()">Logout</button>
+</div>
+
+<!-- BOOK MANAGEMENT -->
+<div class="section">
+    <h3>Add New Book</h3>
+
+    <input id="bookTitle" placeholder="Book Title">
+    <input id="bookAuthor" placeholder="Author">
+    <input id="bookCategory" placeholder="Category">
+    <input id="bookShelf" placeholder="Shelf (Example: A-12)">
+    <input id="bookCopies" type="number" placeholder="Number of Copies">
+    <input id="bookBarcode" placeholder="Barcode / ISBN">
+
+    <button onclick="addBook()">Add Book</button>
+
+    <h4>Scan Barcode using Camera</h4>
+    <video id="camera" autoplay></video>
+    <button onclick="startCamera()">Start Scanner</button>
+</div>
+
+<!-- STUDENT MANAGEMENT -->
+<div class="section">
+    <h3>Add Student</h3>
+
+    <input id="studentName" placeholder="Student Name">
+    <input id="studentID" placeholder="Register Number">
+    <input id="studentContact" placeholder="Email or Phone (optional)">
+
+    <button onclick="addStudent()">Add Student</button>
+</div>
+
+<!-- ISSUE & RETURN -->
+<div class="section">
+    <h3>Issue / Return Book</h3>
+
+    <input id="issueStudent" placeholder="Student Register Number">
+    <input id="issueBarcode" placeholder="Book Barcode">
+
+    <button onclick="issueBook()">Issue Book</button>
+    <button class="danger" onclick="returnBook()">Return Book</button>
+</div>
+
+<!-- STATISTICS -->
+<div class="section">
+    <h3>Library Summary</h3>
+    <p id="summary">Loading...</p>
+</div>
+
+<script>
+// ---------- CAMERA BARCODE SCANNER ----------
+function startCamera() {
+    let camera = document.getElementById("camera");
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { camera.srcObject = stream; })
+        .catch(err => alert("Camera not available"));
+}
+
+// ---------- ADD BOOK ----------
+async function addBook() {
+    let data = {
+        title: document.getElementById("bookTitle").value,
+        author: document.getElementById("bookAuthor").value,
+        category: document.getElementById("bookCategory").value,
+        shelf: document.getElementById("bookShelf").value,
+        copies: document.getElementById("bookCopies").value,
+        barcode: document.getElementById("bookBarcode").value
+    };
+
+    await fetch("https://YOUR_BACKEND_URL/books/add", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    alert("Book Added!");
+}
+
+// ---------- ADD STUDENT ----------
+async function addStudent() {
+    let data = {
+        name: document.getElementById("studentName").value,
+        reg: document.getElementById("studentID").value,
+        contact: document.getElementById("studentContact").value
+    };
+
+    await fetch("https://YOUR_BACKEND_URL/students/add", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    alert("Student Added!");
+}
+
+// ---------- ISSUE BOOK ----------
+async function issueBook() {
+    let data = {
+        reg: document.getElementById("issueStudent").value,
+        barcode: document.getElementById("issueBarcode").value
+    };
+
+    await fetch("https://YOUR_BACKEND_URL/issue", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    alert("Book Issued!");
+}
+
+// ---------- RETURN BOOK ----------
+async function returnBook() {
+    let data = {
+        reg: document.getElementById("issueStudent").value,
+        barcode: document.getElementById("issueBarcode").value
+    };
+
+    await fetch("https://YOUR_BACKEND_URL/return", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    alert("Book Returned!");
+}
+
+// ---------- LOAD SUMMARY ----------
+async function loadSummary() {
+    let res = await fetch("https://YOUR_BACKEND_URL/summary");
+    let data = await res.json();
+
+    document.getElementById("summary").innerHTML =
+        `
+        Total Books: ${data.totalBooks} <br>
+        Books in Loan: ${data.loanBooks} <br>
+        Overdue Books: ${data.overdue} <br>
+        Students Registered: ${data.students} <br>
+        Top Reader: ${data.topReader} <br>
+        `;
+}
+
+loadSummary();
+
+function logout() {
+    window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>
