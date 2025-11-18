@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Students</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: darkblue; }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 250px;
+        }
+        button {
+            padding: 10px;
+            background: darkblue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #bbbbbb;
+            padding: 10px;
+        }
+        th {
+            background: #dbe6ff;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Manage Students</h2>
+
+<h3>Add New Student</h3>
+
+<input id="sname" type="text" placeholder="Student Name">
+<input id="sclass" type="text" placeholder="Class / Grade">
+
+<button onclick="addStudent()">Add Student</button>
+
+<p id="msg" style="color:green;"></p>
+
+<hr>
+
+<h3>Students List</h3>
+
+<input id="search" type="text" placeholder="Search student..." onkeyup="filterStudents()">
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Class</th>
+            <th>Student ID</th>
+            <th>Books Borrowed</th>
+        </tr>
+    </thead>
+    <tbody id="studentList"></tbody>
+</table>
+
+<script>
+    async function addStudent() {
+        const student = {
+            id: crypto.randomUUID(),
+            name: document.getElementById("sname").value,
+            class: document.getElementById("sclass").value,
+            borrowedBooks: 0
+        };
+
+        await fetch("https://YOUR_BACKEND_URL/students/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(student)
+        });
+
+        document.getElementById("msg").innerText = "Student added!";
+        loadStudents();
+    }
+
+    async function loadStudents() {
+        const res = await fetch("https://YOUR_BACKEND_URL/students");
+        const students = await res.json();
+
+        let html = "";
+        students.forEach(s => {
+            html += `
+                <tr>
+                    <td>${s.name}</td>
+                    <td>${s.class}</td>
+                    <td>${s.id}</td>
+                    <td>${s.borrowedBooks}</td>
+                </tr>
+            `;
+        });
+        document.getElementById("studentList").innerHTML = html;
+    }
+
+    function filterStudents() {
+        const text = document.getElementById("search").value.toLowerCase();
+        const rows = document.querySelectorAll("#studentList tr");
+
+        rows.forEach(row => {
+            const name = row.children[0].innerText.toLowerCase();
+            row.style.display = name.includes(text) ? "" : "none";
+        });
+    }
+
+    loadStudents();
+</script>
+
+</body>
+</html>
