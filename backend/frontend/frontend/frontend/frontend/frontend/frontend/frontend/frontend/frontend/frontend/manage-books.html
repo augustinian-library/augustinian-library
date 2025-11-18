@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Books</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: #004d40; }
+
+        input, select {
+            padding: 10px;
+            margin: 5px;
+            width: 260px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #004d40;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th, td {
+            border: 1px solid #bbb;
+            padding: 8px;
+        }
+
+        th {
+            background: #cceae7;
+        }
+
+        .danger {
+            background: #c62828;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Manage Books</h2>
+
+<h3>Add / Update Book</h3>
+
+<input id="barcode" placeholder="Barcode (scan or type)">
+<input id="title" placeholder="Book Title">
+<input id="copies" type="number" placeholder="No. of Copies">
+<input id="category" placeholder="Category (Custom)">
+<input id="shelf" placeholder="Shelf Number">
+
+<button onclick="saveBook()">Save Book</button>
+
+<p id="msg" style="font-weight:bold;"></p>
+
+<hr>
+
+<h3>All Books</h3>
+
+<input id="search" placeholder="Search by title..." onkeyup="filterBooks()">
+
+<table>
+    <thead>
+        <tr>
+            <th>Barcode</th>
+            <th>Title</th>
+            <th>Copies</th>
+            <th>Category</th>
+            <th>Shelf</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody id="bookList"></tbody>
+</table>
+
+<script>
+async function saveBook() {
+    const book = {
+        barcode: document.getElementById("barcode").value.trim(),
+        title: document.getElementById("title").value.trim(),
+        copies: Number(document.getElementById("copies").value),
+        category: document.getElementById("category").value.trim(),
+        shelf: document.getElementById("shelf").value.trim()
+    };
+
+    if (!book.barcode || !book.title) {
+        document.getElementById("msg").style.color = "red";
+        document.getElementById("msg").innerText = "Barcode and Title required.";
+        return;
+    }
+
+    const res = await fetch("https://YOUR_BACKEND_URL/books/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(book)
+    });
+
+    const result = await res.json();
+
+    if(res.status === 200) {
+        document.getElementById("msg").style.color = "green";
+        document.getElementById("msg").innerText = "Book saved successfully!";
+        loadBooks();
+    } else {
+        document.getElementById("msg").style.color = "red";
+        document.getElementById("msg").innerText = result.message;
+    }
+}
+
+async function deleteBook(barcode) {
+    if (!confirm("Delete this book?")) return;
+
+    await fetch(`https://YOUR_BACKEND_URL/books/delete/${barcode}`, {
+        method: "DELETE"
+    });
+
+    loadBooks();
+}
+
+async function loadBooks() {
+    const res = await fetch("https://YOUR_BACKEND_URL/books");
+    const books = await res.json();
+
+    let html = "";
+    books.forEach(b => {
+        html += `
+            <tr>
+                <td>${b.barcode}</td>
+                <td>${b.title}</td>
+                <td>${b.copies}</td>
+                <td>${b.category}</td>
+                <td>${b.shelf}</td>
+                <td><button class="danger" onclick="deleteBook('${b.barcode}')">Delete</button></td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("bookList").innerHTML = html;
+}
+
+function filterBooks() {
+    const text = document.getElementById("search").value.toLowerCase();
+    const rows = document.querySelectorAll("#bookList tr");
+
+    rows.forEach(row => {
+        const title = row.children[1].innerText.toLowerCase();
+        row.style.display = title.includes(text) ? "" : "none";
+    });
+}
+
+loadBooks();
+</script>
+
+</body>
+</html>
