@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reserve Book</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: #8B008B; }
+
+        input {
+            padding: 10px;
+            margin: 8px 0;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #8B008B;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        #msg { margin-top: 15px; font-size: 17px; }
+    </style>
+</head>
+<body>
+
+<h2>Reserve Book</h2>
+
+<label>Student ID:</label><br>
+<input id="studentId" placeholder="Enter Student ID"><br>
+
+<label>Book Barcode:</label><br>
+<input id="barcode" placeholder="Scan or type barcode"><br>
+
+<button onclick="reserveBook()">Reserve</button>
+
+<p id="msg"></p>
+
+<script>
+async function reserveBook() {
+    const studentId = document.getElementById("studentId").value.trim();
+    const barcode = document.getElementById("barcode").value.trim();
+
+    if (!studentId || !barcode) {
+        document.getElementById("msg").style.color = "red";
+        document.getElementById("msg").innerText = "Please fill all fields.";
+        return;
+    }
+
+    const res = await fetch("https://YOUR_BACKEND_URL/reserve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId, barcode })
+    });
+
+    const result = await res.json();
+
+    if (res.status === 200) {
+        document.getElementById("msg").style.color = "green";
+        document.getElementById("msg").innerHTML =
+            `Reservation successful!<br>
+             Your reservation date: <b>${result.reservationDate}</b><br>
+             Your queue position: <b>${result.position}</b>`;
+    } else {
+        document.getElementById("msg").style.color = "red";
+        document.getElementById("msg").innerText =
+            "Error: " + result.message;
+    }
+}
+</script>
+
+</body>
+</html>
