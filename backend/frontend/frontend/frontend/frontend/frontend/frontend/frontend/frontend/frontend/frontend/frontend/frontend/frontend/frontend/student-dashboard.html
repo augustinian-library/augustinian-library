@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f1f8ff;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0d47a1;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        h2 {
+            margin: 0;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 8px #aaa;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        table, th, td {
+            border: 1px solid #bbb;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #e3f2fd;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 12px;
+            border-radius: 6px;
+            border: 1px solid #aaa;
+        }
+
+        button {
+            padding: 10px 18px;
+            margin-top: 10px;
+            background: #0d47a1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .logout {
+            background: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2 id="studentName">Student Dashboard</h2>
+    <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<!-- Borrowed Books -->
+<div class="section">
+    <h3>Borrowed Books</h3>
+    <table id="borrowTable">
+        <tr>
+            <th>Book Title</th>
+            <th>Borrowed Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+        </tr>
+    </table>
+</div>
+
+<!-- Fines -->
+<div class="section">
+    <h3>Fine Details</h3>
+    <p id="fineAmount">Total Fine: ₹0</p>
+</div>
+
+<!-- Reserved Books -->
+<div class="section">
+    <h3>Reserved Books</h3>
+    <table id="reserveTable">
+        <tr>
+            <th>Book Title</th>
+            <th>Status</th>
+        </tr>
+    </table>
+</div>
+
+<!-- Search Books -->
+<div class="section">
+    <h3>Search Available Books</h3>
+    <input id="searchInput" placeholder="Search book name..." oninput="searchBooks()">
+    <ul id="results"></ul>
+</div>
+
+<script>
+// Fetch student dashboard data
+async function loadDashboard() {
+    let res = await fetch("https://YOUR_BACKEND_URL/student/dashboard");
+    let data = await res.json();
+
+    document.getElementById("studentName").innerText =
+        data.name + " (ID: " + data.id + ")";
+
+    // Borrow history
+    let borrowTable = document.getElementById("borrowTable");
+    data.borrowed.forEach(b => {
+        borrowTable.innerHTML += `
+            <tr>
+                <td>${b.title}</td>
+                <td>${b.borrowedDate}</td>
+                <td>${b.dueDate}</td>
+                <td>${b.status}</td>
+            </tr>
+        `;
+    });
+
+    // Fines
+    document.getElementById("fineAmount").innerText =
+        "Total Fine: ₹" + data.fine;
+
+    // Reservations
+    let reserveTable = document.getElementById("reserveTable");
+    data.reserved.forEach(r => {
+        reserveTable.innerHTML += `
+            <tr>
+                <td>${r.title}</td>
+                <td>${r.status}</td>
+            </tr>
+        `;
+    });
+}
+
+// Book search
+async function searchBooks() {
+    let query = document.getElementById("searchInput").value;
+
+    let res = await fetch("https://YOUR_BACKEND_URL/books/search?q=" + query);
+    let books = await res.json();
+
+    let list = document.getElementById("results");
+    list.innerHTML = "";
+
+    books.forEach(b => {
+        list.innerHTML += `<li>${b.title} - ${b.author}</li>`;
+    });
+}
+
+function logout() {
+    window.location.href = "login.html";
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>
