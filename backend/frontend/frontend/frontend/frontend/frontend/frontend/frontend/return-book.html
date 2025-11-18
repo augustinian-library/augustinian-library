@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Return Book</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h2 { color: darkred; }
+
+        input {
+            padding: 10px;
+            margin: 8px 0;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: darkred;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        #msg { margin-top: 10px; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+<h2>Return Book</h2>
+
+<label>Scan / Enter Book Barcode:</label><br>
+<input id="barcode" placeholder="Scan barcode or type"><br>
+
+<button onclick="returnBook()">Return Book</button>
+
+<p id="msg"></p>
+
+<script>
+async function returnBook() {
+    const barcode = document.getElementById("barcode").value.trim();
+
+    if (!barcode) {
+        document.getElementById("msg").innerText = "Please enter barcode.";
+        return;
+    }
+
+    const res = await fetch("https://YOUR_BACKEND_URL/return", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ barcode })
+    });
+
+    const result = await res.json();
+
+    if (res.status === 200) {
+        let fineMsg = result.fine > 0
+            ? `Fine: ₹${result.fine} (Overdue by ${result.overdueDays} days)`
+            : "No fine";
+
+        document.getElementById("msg").style.color = "green";
+        document.getElementById("msg").innerText =
+            `Book returned successfully.\n${fineMsg}`;
+    } else {
+        document.getElementById("msg").style.color = "red";
+        document.getElementById("msg").innerText =
+            "Error: " + result.message;
+    }
+}
+</script>
+
+</body>
+</html>
