@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Augustinian Library – Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f1f1f1;
+        }
+
+        h1 {
+            color: #003366;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        .label {
+            color: #555;
+            font-size: 14px;
+        }
+
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .list li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>📚 Augustinian Library Dashboard</h1>
+
+<div class="grid">
+
+    <div class="card">
+        <div class="label">Books in Loan</div>
+        <div class="value" id="loanCount">--</div>
+    </div>
+
+    <div class="card">
+        <div class="label">Checked Out (Last 7 days)</div>
+        <div class="value" id="checkedOut">--</div>
+    </div>
+
+    <div class="card">
+        <div class="label">Checked In (Last 7 days)</div>
+        <div class="value" id="checkedIn">--</div>
+    </div>
+
+    <div class="card">
+        <div class="label">Overdue Books</div>
+        <div class="value" id="overdue">--</div>
+    </div>
+
+    <div class="card">
+        <div class="label">Unpaid Fines (₹)</div>
+        <div class="value" id="unpaidFines">--</div>
+    </div>
+
+    <div class="card">
+        <div class="label">Top Reader</div>
+        <div class="value" id="topReader">--</div>
+    </div>
+
+</div>
+
+<div class="card" style="margin-top: 30px;">
+    <h2>📘 Trending Books</h2>
+    <ul id="trending" class="list"></ul>
+</div>
+
+<script>
+async function loadDashboard() {
+    const res = await fetch("https://YOUR_BACKEND_URL/stats");
+    const data = await res.json();
+
+    document.getElementById("loanCount").innerText = data.loanCount;
+    document.getElementById("checkedOut").innerText = data.checkedOut7;
+    document.getElementById("checkedIn").innerText = data.checkedIn7;
+    document.getElementById("overdue").innerText = data.overdue;
+    document.getElementById("unpaidFines").innerText = data.unpaidFines;
+    document.getElementById("topReader").innerText = data.topReader || "None";
+
+    let html = "";
+    data.trending.forEach(book => {
+        html += `<li>${book.title} (${book.count} borrows)</li>`;
+    });
+
+    document.getElementById("trending").innerHTML = html;
+}
+
+loadDashboard();
+setInterval(loadDashboard, 15000); // Refresh every 15 seconds
+</script>
+
+</body>
+</html>
