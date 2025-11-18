@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #e3f2fd;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            width: 350px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px #aaa;
+            text-align: center;
+        }
+
+        h2 {
+            color: #0d47a1;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            width: 90%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 95%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #0d47a1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        #msg {
+            margin-top: 10px;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Augustinian Library</h2>
+
+    <select id="role" onchange="toggleFields()">
+        <option value="">Login as...</option>
+        <option value="librarian">Librarian</option>
+        <option value="student">Student</option>
+    </select>
+
+    <div id="librarianFields" style="display:none;">
+        <input id="libEmail" placeholder="Email">
+        <input id="libPass" type="password" placeholder="Password">
+    </div>
+
+    <div id="studentFields" style="display:none;">
+        <input id="studId" placeholder="Student ID">
+    </div>
+
+    <button onclick="login()">Login</button>
+
+    <p id="msg"></p>
+</div>
+
+<script>
+function toggleFields() {
+    let role = document.getElementById("role").value;
+
+    document.getElementById("librarianFields").style.display =
+        role === "librarian" ? "block" : "none";
+
+    document.getElementById("studentFields").style.display =
+        role === "student" ? "block" : "none";
+}
+
+async function login() {
+    const role = document.getElementById("role").value;
+
+    if (role === "librarian") {
+        const email = document.getElementById("libEmail").value;
+        const password = document.getElementById("libPass").value;
+
+        const res = await fetch("https://YOUR_BACKEND_URL/login/librarian", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const result = await res.json();
+
+        if (res.status === 200) {
+            window.location.href = "index.html";  // Dashboard
+        } else {
+            document.getElementById("msg").innerText = result.message;
+        }
+    }
+
+    else if (role === "student") {
+        const id = document.getElementById("studId").value;
+
+        const res = await fetch("https://YOUR_BACKEND_URL/login/student", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id })
+        });
+
+        const result = await res.json();
+
+        if (res.status === 200) {
+            window.location.href = "student-dashboard.html";
+        } else {
+            document.getElementById("msg").innerText = result.message;
+        }
+    }
+
+    else {
+        document.getElementById("msg").innerText = "Please select login type.";
+    }
+}
+</script>
+
+</body>
+</html>
